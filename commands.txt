@@ -1,0 +1,9 @@
+ls -lh build/Release/stm32_semb_morse.elf    
+
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "program build/Release/stm32_semb_morse.elf verify reset exit"
+
+cmake --build build/Release --clean-first
+
+python chat_morse.py /dev/ttyACM0   
+
+python chat_morse.py /dev/ttyACM1

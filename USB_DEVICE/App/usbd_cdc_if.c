@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-extern void Morse_Receive_Byte(uint8_t rx_byte);
+extern void morse_receive_byte(uint8_t rx_byte);
 
 /* USER CODE END INCLUDE */
 
@@ -266,7 +266,7 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 
   for (uint32_t i = 0; i < *Len; i++)
   {
-    Morse_Receive_Byte(Buf[i]);
+    morse_receive_byte(Buf[i]);
   }
 
   return (USBD_OK);
