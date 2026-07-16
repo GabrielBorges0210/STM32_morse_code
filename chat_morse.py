@@ -2,7 +2,6 @@ import serial
 import sys
 import threading
 
-# Dicionário Internacional de Código Morse
 MORSE_DICT = {
     'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 
     'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 
@@ -13,7 +12,6 @@ MORSE_DICT = {
     '3': '...--', '4': '....-', '5': '.....', '6': '-....', 
     '7': '--...', '8': '---..', '9': '----.'
 }
-# Dicionário Reverso (Morse -> Texto)
 REVERSE_DICT = {value: key for key, value in MORSE_DICT.items()}
 
 def texto_para_morse(texto):
@@ -25,7 +23,7 @@ def texto_para_morse(texto):
     return ' / '.join(morse_palavras) + '\n'
 
 def decodifica_linha_morse(linha_morse):
-    # O STM32 manda palavras separadas por '/' e letras por ' '
+    # Palavras separadas por '/' e letras por ' '
     texto_claro = ""
     palavras = linha_morse.strip().split('/')
     for palavra in palavras:
@@ -40,7 +38,7 @@ def escuta_serial(porta_serial):
     while True:
         try:
             if porta_serial.in_waiting > 0:
-                # O STM32 termina a transmissão com \r\n
+                # Termina a transmissão com \r\n
                 linha = porta_serial.readline().decode('utf-8').strip()
                 if linha:
                     texto = decodifica_linha_morse(linha)
@@ -64,7 +62,7 @@ if __name__ == "__main__":
         print(f"Erro ao abrir a porta {porta}.")
         sys.exit(1)
 
-    # Inicia a Thread que fica lendo o STM32 em background
+    # Inicia a Thread
     thread_leitura = threading.Thread(target=escuta_serial, args=(ser,), daemon=True)
     thread_leitura.start()
 
@@ -78,7 +76,7 @@ if __name__ == "__main__":
                 break
             if msg:
                 morse_string = texto_para_morse(msg)
-                # Envia os pontos e traços formatados pro STM32 piscar
+                # Envia os pontos e traços formatados pro STM32
                 ser.write(morse_string.encode('utf-8'))
         except KeyboardInterrupt:
             break
