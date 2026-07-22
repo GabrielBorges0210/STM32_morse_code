@@ -1,0 +1,27 @@
+{
+  "name": "stm32_semb_morse",
+  "version": "1.0.0",
+  "description": "A robust, Half-Duplex optical chat system built on the STM32F411 (BlackPill). This project transmits and receives text messages using Morse code over an infrared optical link, interfacing with a host PC via USB CDC (Virtual COM Port).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GabrielBorges0210/STM32_morse_code.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/GabrielBorges0210/STM32_morse_code/issues"
+  },
+  "homepage": "https://github.com/GabrielBorges0210/STM32_morse_code#readme",
+  "dependencies": {
+    "@fastify/static": "^10.1.0",
+    "@fastify/websocket": "^11.3.0",
+    "fastify": "^5.10.0",
+    "serialport": "^13.0.0"
+  }
+}

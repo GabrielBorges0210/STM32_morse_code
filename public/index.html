@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optical Morse Chat</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #ece5dd; margin: 0; display: flex; justify-content: center; height: 100vh; }
+        .chatContainer { width: 100%; max-width: 600px; background: #fff; display: flex; flex-direction: column; height: 100vh; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .chatHeader { background: #075e54; color: white; padding: 15px; text-align: center; font-weight: bold; }
+        .messageArea { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-color: #e5ddd5; }
+        .message { max-width: 75%; padding: 10px 15px; border-radius: 20px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .msgSent { background-color: #dcf8c6; align-self: flex-end; border-bottom-right-radius: 0; }
+        .msgReceived { background-color: #fff; align-self: flex-start; border-bottom-left-radius: 0; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .inputArea { display: flex; padding: 10px; background: #f0f0f0; }
+        #messageInput { flex: 1; padding: 12px; border: none; border-radius: 20px; outline: none; font-size: 15px; }
+        #sendButton { background: #128c7e; color: white; border: none; padding: 0 20px; margin-left: 10px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        #sendButton:hover { background: #075e54; }
+    </style>
+</head>
+<body>
+    <div class="chatContainer">
+        <div class="chatHeader">STM32 Optical Link</div>
+        <div class="messageArea" id="messageArea"></div>
+        <div class="inputArea">
+            <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" />
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+        const messageArea = document.getElementById('messageArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        const morseMap = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
+            '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+            '8': '---..', '9': '----.'
+        };
+
+        const reverseMorseMap = Object.fromEntries(Object.entries(morseMap).map(([k, v]) => [v, k]));
+
+        function encodeToMorse(text) {
+            return text.toUpperCase().split('').map(char => {
+                if (char === ' ') return '/';
+                return morseMap[char] || '';
+            }).filter(Boolean).join(' ').replace(/ \/ /g, '/');
+        }
+
+        function decodeFromMorse(morseString) {
+            return morseString.trim().replace(/\//g, ' / ').split(' ').map(symbol => {
+                if (symbol === '/') return ' ';
+                return reverseMorseMap[symbol] || '?';
+            }).join('');
+        }
+
+        // Renderiza as mensagens na tela
+        function appendMessage(text, morseInfo, isSent) {
+            const div = document.createElement('div');
+            div.className = `message ${isSent ? 'msgSent' : 'msgReceived'}`;
+            
+            const textSpan = document.createElement('div');
+            textSpan.textContent = text;
+            textSpan.style.fontWeight = 'bold';
+            
+            // Adiciona o código morse embaixo
+            const morseSpan = document.createElement('div');
+            morseSpan.textContent = morseInfo;
+            morseSpan.style.fontSize = '0.8em';
+            morseSpan.style.color = '#555';
+            morseSpan.style.marginTop = '4px';
+
+            div.appendChild(textSpan);
+            div.appendChild(morseSpan);
+            messageArea.appendChild(div);
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+
+        ws.onmessage = (event) => {
+            const rawMorse = event.data.trim();
+            if (rawMorse.length > 0) {
+                const translatedText = decodeFromMorse(rawMorse);
+                appendMessage(translatedText, rawMorse, false);
+            }
+        };
+
+        function sendMessage() {
+            const rawText = messageInput.value.trim();
+            if (rawText && ws.readyState === WebSocket.OPEN) {
+                const morsePayload = encodeToMorse(rawText);
+                
+                ws.send(morsePayload); 
+                
+                appendMessage(rawText.toUpperCase(), morsePayload, true);
+                messageInput.value = '';
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

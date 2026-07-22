@@ -205,7 +205,7 @@ int main(void)
       {
         while (CDC_Transmit_FS(usbBuffer, usbLen) == USBD_BUSY)
         {
-          // Trava de segurança: Espera o hardware USB esvaziar
+          //Espera o hardware USB esvaziar
         }
       }
     }
@@ -221,7 +221,7 @@ int main(void)
         uint8_t n[] = "\r\n";
         while (CDC_Transmit_FS(n, 2) == USBD_BUSY)
         {
-          // Trava de segurança: Espera o hardware USB esvaziar
+          // Espera o hardware USB esvaziar
         }
         is_line_empty = 1;
       }
@@ -435,7 +435,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM3)
   {
-    // PROTEÇÃO HALF-DUPLEX (O MUDO DE SOFTWARE)
+    // PROTEÇÃO HALF-DUPLEX 
     if (txState != TX_IDLE)
     {
       ir_signal_active = 0;
