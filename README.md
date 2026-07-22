@@ -61,3 +61,31 @@ python chat_morse.py /dev/ttyACM0
 # Terminal 2 (Board B)
 python chat_morse.py /dev/ttyACM1
 ```
+
+## Web Interface (Advanced Setup)
+
+For a richer, real-time chat experience, you can bypass the Python terminal script and use the Node.js Web Interface. This architecture completely decouples the hardware layer from the presentation layer using Fastify, WebSockets, and the SerialPort library. The browser handles the text-to-Morse translation, allowing the STM32 to focus purely on physical layer transmission.
+
+### 1. Install Dependencies
+Ensure Node.js is installed on your system, then install the required packages at the project root:
+```bash
+npm install fastify @fastify/websocket @fastify/static serialport
+```
+
+### 2. Launch the Local Servers
+Since Linux requires exclusive access to serial ports, you must treat each board as a separate machine. Launch two independent Node.js server instances, assigning them different serial paths and HTTP ports:
+
+```bash
+# Terminal 1 (Board A) - Binds to HTTP Port 3000
+node server.js /dev/ttyACM0 3000
+
+# Terminal 2 (Board B) - Binds to HTTP Port 3001
+node server.js /dev/ttyACM1 3001
+```
+
+### 3. Open the Chat Interfaces
+Open your web browser and navigate to the respective local servers:
+*   **Board A Interface:** `http://localhost:3000`
+*   **Board B Interface:** `http://localhost:3001`
+
+The front-end JavaScript will dynamically parse your text into optimized Morse payloads (stripping redundant spaces around word delimiters to prevent hardware timeouts) and inject them via WebSocket directly into the optical link.
